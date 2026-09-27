@@ -29,16 +29,18 @@ app.use('/api/analytics', analyticsRoutes);
 
 app.get('/api/health', (req, res) => res.json({ ok: true }));
 
-// Serve the plain HTML/CSS/JS frontend from the same server so there is
-// nothing else to configure — visiting http://localhost:PORT/ just works.
-const FRONTEND_DIR = path.join(__dirname, '..', '..', 'frontend');
+// The deployed frontend lives in docs/. Keep the path relative to this file
+// so it works both locally and in Vercel's bundled function.
+const FRONTEND_DIR = path.join(__dirname, '..', '..', 'docs');
 app.use(express.static(FRONTEND_DIR));
+
+// Return the SPA entry point for browser navigation and unknown frontend paths,
+// but never hide an unknown API endpoint behind index.html.
 app.get('*', (req, res, next) => {
   if (req.path.startsWith('/api/')) return next();
   res.sendFile(path.join(FRONTEND_DIR, 'index.html'));
 });
 
-// Centralized error handler — keeps route handlers free of try/catch boilerplate.
 app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ error: 'Something went wrong on the server.' });

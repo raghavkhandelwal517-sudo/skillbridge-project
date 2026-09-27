@@ -6,7 +6,7 @@
       "use": "@vercel/node",
       "config": {
         "includeFiles": [
-          "frontend/**",
+          "docs/**",
           "backend/data/**"
         ]
       }
@@ -17,10 +17,5 @@
       "src": "/(.*)",
       "dest": "/api/index.js"
     }
-  ],
-  "env": {
-    "JWT_SECRET": "@JWT_SECRET",
-    "JWT_EXPIRES_IN": "7d",
-    "NODE_ENV": "production"
-  }
+  ]
 }

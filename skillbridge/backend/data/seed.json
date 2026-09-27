@@ -1,0 +1,153 @@
+{
+  "users": [
+    {
+      "id": "u_student_1",
+      "role": "student",
+      "name": "Aditi Sharma",
+      "email": "aditi@student.edu",
+      "password": "demo123",
+      "headline": "B.Tech CSE, 3rd Year — National Institute of Technology",
+      "bio": "Full-stack leaning frontend developer, curious about ML. Looking for an internship where I can build real products.",
+      "institution": "National Institute of Technology",
+      "isMentor": false,
+      "skills": [
+        { "name": "JavaScript", "level": "Advanced" },
+        { "name": "React", "level": "Intermediate" },
+        { "name": "Communication", "level": "Advanced" },
+        { "name": "Problem Solving", "level": "Intermediate" }
+      ],
+      "projects": [
+        {
+          "id": "p_1",
+          "title": "Campus Event Manager",
+          "description": "A web app for students to discover and RSVP to campus events, with an admin panel for organizers.",
+          "tech": ["React", "Node.js", "MongoDB"],
+          "status": "Completed",
+          "link": ""
+        }
+      ],
+      "certifications": ["NPTEL: Data Structures & Algorithms"],
+      "achievements": ["Runner-up, Inter-college Hackathon 2025"],
+      "assessments": []
+    },
+    {
+      "id": "u_academician_1",
+      "role": "academician",
+      "name": "Dr. Rohan Mehta",
+      "email": "rohan@university.edu",
+      "password": "demo123",
+      "headline": "Associate Professor, Computer Science",
+      "bio": "Researching applied ML and mentoring students on industry-facing projects.",
+      "institution": "National Institute of Technology",
+      "department": "Computer Science",
+      "isMentor": true,
+      "skills": [
+        { "name": "Machine Learning", "level": "Expert" },
+        { "name": "Mentoring", "level": "Expert" },
+        { "name": "Data Analysis", "level": "Advanced" }
+      ],
+      "certifications": [],
+      "achievements": []
+    },
+    {
+      "id": "u_industry_1",
+      "role": "industry",
+      "name": "Priya Nair",
+      "email": "priya@technova.com",
+      "password": "demo123",
+      "headline": "Head of Talent & University Relations",
+      "bio": "Building the bridge between campus talent and real engineering work at TechNova.",
+      "orgName": "TechNova Solutions",
+      "sector": "Software & IT Services",
+      "isMentor": true,
+      "skills": [
+        { "name": "Leadership", "level": "Advanced" },
+        { "name": "Project Management", "level": "Advanced" }
+      ],
+      "certifications": [],
+      "achievements": []
+    },
+    {
+      "id": "u_admin_1",
+      "role": "admin",
+      "name": "Institution Admin",
+      "email": "admin@nit.edu",
+      "password": "demo123",
+      "headline": "Placement & Training Cell",
+      "bio": "Overseeing skill development and placement outcomes across the institution.",
+      "institution": "National Institute of Technology",
+      "isMentor": false,
+      "skills": [],
+      "certifications": [],
+      "achievements": []
+    }
+  ],
+  "opportunities": [
+    {
+      "id": "o_1",
+      "industryId": "u_industry_1",
+      "industryName": "TechNova Solutions",
+      "title": "Frontend Developer Intern",
+      "type": "Internship",
+      "description": "Work with our product team building customer-facing dashboards in React. 3-month remote-friendly internship with mentorship.",
+      "requiredSkills": ["JavaScript", "React", "Communication"],
+      "deadline": "2026-11-15",
+      "createdAt": 1758800000000
+    },
+    {
+      "id": "o_2",
+      "industryId": "u_industry_1",
+      "industryName": "TechNova Solutions",
+      "title": "Data Analyst Trainee",
+      "type": "Training",
+      "description": "Six-week paid training program covering real business data, dashboards, and analytics storytelling, with a placement track for top performers.",
+      "requiredSkills": ["Data Analysis", "Excel", "Communication"],
+      "deadline": "2026-12-01",
+      "createdAt": 1759050000000
+    }
+  ],
+  "applications": [
+    {
+      "id": "a_1",
+      "opportunityId": "o_1",
+      "userId": "u_student_1",
+      "status": "Shortlisted",
+      "date": 1759100000000
+    }
+  ],
+  "programs": [
+    {
+      "id": "pr_1",
+      "academicianId": "u_academician_1",
+      "academicianName": "Dr. Rohan Mehta",
+      "title": "AI Applications Faculty Development Program",
+      "type": "FDP",
+      "description": "A one-week faculty development program on applying machine learning to real industry problems, run jointly with TechNova.",
+      "eligibility": "Open to faculty and PhD scholars",
+      "startDate": "2027-01-12",
+      "endDate": "2027-01-18",
+      "interested": []
+    }
+  ],
+  "mentorships": [],
+  "events": [
+    {
+      "id": "e_1",
+      "title": "Industry 4.0 Workshop",
+      "type": "Workshop",
+      "date": "2026-10-14",
+      "description": "Hands-on workshop on automation and IoT in modern manufacturing, hosted by TechNova engineers.",
+      "organizerName": "TechNova Solutions",
+      "rsvps": []
+    },
+    {
+      "id": "e_2",
+      "title": "AI in Research: Guest Lecture",
+      "type": "GuestLecture",
+      "date": "2026-10-22",
+      "description": "A guest lecture on applying ML to academic research pipelines.",
+      "organizerName": "Dr. Rohan Mehta",
+      "rsvps": []
+    }
+  ]
+}

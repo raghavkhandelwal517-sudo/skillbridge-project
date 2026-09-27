@@ -1,0 +1,282 @@
+// Reference relational schema for the Academia-Industry Collaboration Portal.
+//
+// The running app in /backend uses a simple JSON file as its data store so
+// the whole project can be cloned and run with zero external services. This
+// file is NOT wired up to that app — it's a blueprint of the schema from the
+// original project spec, written as Prisma so it's easy to read, diff, and
+// eventually adopt for real. To actually use it:
+//
+//   1. cd backend && npm install prisma @prisma/client
+//   2. Move this file to backend/prisma/schema.prisma
+//   3. Point `url` below at a real Postgres/MySQL/SQLite database
+//   4. npx prisma migrate dev
+//   5. Replace backend/src/db.js with a Prisma-backed data layer
+//
+// The field names intentionally mirror backend/src/data/seed.json so that
+// migration is closer to a data-copy exercise than a redesign.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  student
+  academician
+  industry
+  admin
+}
+
+enum SkillLevel {
+  Beginner
+  Intermediate
+  Advanced
+  Expert
+}
+
+enum OpportunityType {
+  Internship
+  Job
+  Training
+}
+
+enum ApplicationStatus {
+  Applied
+  Shortlisted
+  Selected
+  Rejected
+}
+
+enum ProgramType {
+  FDP
+  Internship
+  Consultancy
+  CollaborativeProject
+}
+
+enum MentorshipStatus {
+  pending
+  accepted
+  declined
+}
+
+enum EventType {
+  Workshop
+  GuestLecture
+  Challenge
+}
+
+model User {
+  id           String   @id @default(cuid())
+  role         Role
+  name         String
+  email        String   @unique
+  passwordHash String
+  headline     String?
+  bio          String?
+  institution  String? // students, academicians, admins
+  department   String? // academicians
+  orgName      String? // industry
+  sector       String? // industry
+  isMentor     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  skillProfiles      SkillProfile[]
+  assessments        SkillAssessment[]
+  projects           Project[]
+  certifications     Certification[]
+  achievements       Achievement[]
+  postedOpportunities Opportunity[]     @relation("IndustryOpportunities")
+  applications       Application[]
+  programsRun        AcademicianProgram[]
+  programInterest    ProgramInterest[]
+  mentorshipsAsMentor Mentorship[]      @relation("MentorSide")
+  mentorshipsAsMentee Mentorship[]      @relation("MenteeSide")
+  eventRsvps         EventRsvp[]
+  documents          Document[]
+}
+
+model Skill {
+  id            String         @id @default(cuid())
+  name          String         @unique
+  type          String? // Technical / Soft
+  description   String?
+  skillProfiles SkillProfile[]
+  jobRoles      JobRoleSkill[]
+  opportunities OpportunitySkill[]
+}
+
+model SkillProfile {
+  id      String     @id @default(cuid())
+  user    User       @relation(fields: [userId], references: [id])
+  userId  String
+  skill   Skill      @relation(fields: [skillId], references: [id])
+  skillId String
+  level   SkillLevel
+
+  @@unique([userId, skillId])
+}
+
+model SkillAssessment {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  responses Json // raw answers, if collected
+  scores    Json // { programming: 4, data: 3, ... }
+  date      DateTime @default(now())
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  user        User     @relation(fields: [userId], references: [id])
+  userId      String
+  title       String
+  description String?
+  tech        String[] // e.g. ["React", "Node.js"]
+  status      String   @default("Ongoing")
+  link        String?
+}
+
+model Certification {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  label  String
+}
+
+model Achievement {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+  label  String
+}
+
+model Industry {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  contacts    String?
+  jobRoles    JobRole[]
+  opportunities Opportunity[]
+}
+
+model JobRole {
+  id         String         @id @default(cuid())
+  industry   Industry       @relation(fields: [industryId], references: [id])
+  industryId String
+  name       String
+  skills     JobRoleSkill[]
+}
+
+model JobRoleSkill {
+  jobRole   JobRole @relation(fields: [jobRoleId], references: [id])
+  jobRoleId String
+  skill     Skill   @relation(fields: [skillId], references: [id])
+  skillId   String
+
+  @@id([jobRoleId, skillId])
+}
+
+model Opportunity {
+  id           String            @id @default(cuid())
+  industry     User              @relation("IndustryOpportunities", fields: [industryId], references: [id])
+  industryId   String
+  industryOrg  Industry?         @relation(fields: [industryOrgId], references: [id])
+  industryOrgId String?
+  title        String
+  type         OpportunityType
+  description  String
+  deadline     DateTime
+  createdAt    DateTime          @default(now())
+  requiredSkills OpportunitySkill[]
+  applications Application[]
+}
+
+model OpportunitySkill {
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  skill         Skill       @relation(fields: [skillId], references: [id])
+  skillId       String
+
+  @@id([opportunityId, skillId])
+}
+
+model Application {
+  id            String            @id @default(cuid())
+  opportunity   Opportunity       @relation(fields: [opportunityId], references: [id])
+  opportunityId String
+  user          User              @relation(fields: [userId], references: [id])
+  userId        String
+  status        ApplicationStatus @default(Applied)
+  dateApplied   DateTime          @default(now())
+
+  @@unique([opportunityId, userId])
+}
+
+model AcademicianProgram {
+  id             String            @id @default(cuid())
+  academician    User              @relation(fields: [academicianId], references: [id])
+  academicianId  String
+  title          String
+  type           ProgramType
+  description    String?
+  eligibility    String?
+  startDate      DateTime?
+  endDate        DateTime?
+  interested     ProgramInterest[]
+}
+
+model ProgramInterest {
+  program   AcademicianProgram @relation(fields: [programId], references: [id])
+  programId String
+  user      User               @relation(fields: [userId], references: [id])
+  userId    String
+
+  @@id([programId, userId])
+}
+
+model Mentorship {
+  id        String           @id @default(cuid())
+  mentor    User             @relation("MentorSide", fields: [mentorId], references: [id])
+  mentorId  String
+  mentee    User             @relation("MenteeSide", fields: [menteeId], references: [id])
+  menteeId  String
+  status    MentorshipStatus @default(pending)
+  feedback  String?
+  createdAt DateTime         @default(now())
+
+  @@unique([mentorId, menteeId])
+}
+
+model Event {
+  id            String      @id @default(cuid())
+  title         String
+  type          EventType
+  date          DateTime
+  description   String?
+  organizerName String
+  participants  EventRsvp[]
+}
+
+model EventRsvp {
+  event  Event  @relation(fields: [eventId], references: [id])
+  eventId String
+  user   User   @relation(fields: [userId], references: [id])
+  userId String
+
+  @@id([eventId, userId])
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  type         String // e.g. "Certificate", "Resume"
+  filePath     String
+  verifiedStatus String @default("Unverified")
+  uploadedAt   DateTime @default(now())
+}

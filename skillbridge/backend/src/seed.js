@@ -1,6 +1,6 @@
-// Builds data/db.json from data/seed.json, hashing the demo plaintext
-// passwords along the way. Run manually with `npm run seed` any time you
-// want to wipe the database back to its original demo state.
+// Builds the in-memory demo database from data/seed.json.
+// The optional persist flag is disabled when Vercel loads the serverless
+// function because Vercel's filesystem is read-only and ephemeral.
 
 const fs = require('fs');
 const path = require('path');
@@ -9,7 +9,7 @@ const bcrypt = require('bcryptjs');
 const SEED_PATH = path.join(__dirname, '..', 'data', 'seed.json');
 const DB_PATH = path.join(__dirname, '..', 'data', 'db.json');
 
-function buildDb() {
+function buildDb(persist = true) {
   const seed = JSON.parse(fs.readFileSync(SEED_PATH, 'utf8'));
 
   seed.users = seed.users.map((u) => {
@@ -17,12 +17,15 @@ function buildDb() {
     return { ...rest, passwordHash: bcrypt.hashSync(password, 10) };
   });
 
-  fs.writeFileSync(DB_PATH, JSON.stringify(seed, null, 2));
+  if (persist) {
+    fs.writeFileSync(DB_PATH, JSON.stringify(seed, null, 2));
+  }
+
   return seed;
 }
 
 if (require.main === module) {
-  buildDb();
+  buildDb(true);
   console.log('Seeded backend/data/db.json from seed.json (demo passwords are all "demo123").');
 }
 

@@ -1,17 +1,13 @@
-// A tiny file-backed "database". It keeps everything in memory and writes
-// the whole file to disk after every mutation. This is intentionally simple
-// so the project runs anywhere with zero native dependencies and no DB
-// server to install. For real multi-user deployment, swap this module out
-// for a real database (see prisma/schema.prisma for a relational schema
-// that mirrors this same shape almost one-to-one).
+// A tiny file-backed database for local development.
+// On Vercel, the filesystem is read-only/ephemeral, so the app falls back to
+// a fresh in-memory seed and treats writes as best-effort.
 
 const fs = require('fs');
-const path = require('path');
 const { buildDb, DB_PATH } = require('./seed');
 
 function load() {
   if (!fs.existsSync(DB_PATH)) {
-    return buildDb();
+    return buildDb(false);
   }
   return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
 }
@@ -19,7 +15,13 @@ function load() {
 const state = load();
 
 function save() {
-  fs.writeFileSync(DB_PATH, JSON.stringify(state, null, 2));
+  try {
+    fs.writeFileSync(DB_PATH, JSON.stringify(state, null, 2));
+  } catch (err) {
+    // Vercel serverless functions cannot persist local files. Keep the
+    // current warm instance usable; a real deployment should use a database.
+    if (process.env.NODE_ENV !== 'production') throw err;
+  }
 }
 
 function uid(prefix) {
